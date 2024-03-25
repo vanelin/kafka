@@ -32,7 +32,7 @@ Once installed, you'll need to locate the Metrics Server deployment to patch it.
 ```bash
 kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
 ```
-Please be aware that using --kubelet-insecure-tls means the Metrics Server will not verify the TLS certificates presented by the Kubelets. This can lead to insecure operation and is not recommended for production environments. It is usually used when you have self-signed certs or a non-standard CA and have not set up the appropriate CA chain for the Metrics Server to trust the Kubelets' certificates.
+Please be aware that using `--kubelet-insecure-tls` means the Metrics Server will not verify the TLS certificates presented by the Kubelets. This can lead to insecure operation and is not recommended for production environments. It is usually used when you have self-signed certs or a non-standard CA and have not set up the appropriate CA chain for the Metrics Server to trust the Kubelets' certificates.
 
 ## Add Bitnami Helm Repo:
 ```bash
@@ -127,7 +127,7 @@ MaxFollowerLagTimeMs:   160
 CurrentVoters:          [0,1,2]
 CurrentObservers:       []
 
-# Create/desribe/update/delete a topic named 'test' with 5 partitions.
+# Create/desribe/update/delete a topic named 'test' with 3 partitions.
 I have no name!@kafka-client:/$ kafka-topics.sh --bootstrap-server  kafka.kafka.svc.cluster.local:9092 --topic test --create --partitions 3
 Created topic test.
 
