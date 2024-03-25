@@ -1,0 +1,211 @@
+## @section Global parameters
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: "standard"
+
+## @section Common parameters
+kubeVersion: ""
+nameOverride: ""
+fullnameOverride: ""
+clusterDomain: cluster.local
+commonLabels: {}
+commonAnnotations: {}
+extraDeploy: []
+serviceBindings:
+  enabled: false
+diagnosticMode:
+  enabled: false
+  command: [sleep]
+  args: [infinity]
+
+## @section Kafka parameters
+image:
+  registry: docker.io
+  repository: bitnami/kafka
+  tag: 3.7.0-debian-12-r0
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+extraInit: ""
+config: ""
+existingConfigmap: ""
+# extraConfig: ""
+
+extraConfig: |-
+  auto.create.topics.enable=true
+  delete.topic.enable=true
+  num.partitions=24
+  default.replication.factor=3
+  log.retention.hours=336
+  log.roll.hours=336
+  log.flush.interval.messages=10000
+  log.flush.interval.ms=1000
+  group.initial.rebalance.delay.ms=0
+  sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512,OAUTHBEARER
+  super.users=User:admin
+  message.max.bytes=1048588
+  log.retention.bytes=-1
+  min.insync.replicas=2
+
+secretConfig: ""
+existingSecretConfig: ""
+log4j: ""
+existingLog4jConfigMap: ""
+heapOpts: -Xmx1024m -Xms512m
+interBrokerProtocolVersion: ""
+listeners:
+  client:
+    containerPort: 9092
+    protocol: PLAINTEXT
+    name: CLIENT
+    sslClientAuth: ""
+  controller:
+    name: CONTROLLER
+    containerPort: 9093
+    protocol: PLAINTEXT
+    sslClientAuth: ""
+  interbroker:
+    containerPort: 9094
+    protocol: PLAINTEXT
+    name: INTERNAL
+    sslClientAuth: ""
+  external:
+    containerPort: 9095
+    protocol: PLAINTEXT
+    name: EXTERNAL
+    sslClientAuth: ""
+  extraListeners: []
+  overrideListeners: ""
+  advertisedListeners: ""
+  securityProtocolMap: ""
+sasl:
+  enabledMechanisms: PLAIN
+  interBrokerMechanism: PLAIN
+  controllerMechanism: PLAIN
+  oauthbearer:
+    tokenEndpointUrl: ""
+    jwksEndpointUrl: ""
+    expectedAudience: ""
+    subClaimName: "sub"
+  interbroker:
+    user: inter_broker_user
+    password: ""
+    clientId: inter_broker_client
+    clientSecret: ""
+  controller:
+    user: controller_user
+    password: ""
+    clientId: controller_broker_client
+    clientSecret: ""
+  client:
+    users: [user1]
+    passwords: ""
+  zookeeper:
+    user: ""
+    password: ""
+  existingSecret: ""
+
+## @section Kafka KRaft parameters
+kraft:
+  enabled: true
+  # clusterId: "wbvoczQzaMQ9ZfDZcOhKT2"
+
+## Persistence
+controller:
+  replicaCount: 3
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    accessModes: [ReadWriteOnce]
+    size: 2Gi
+    annotations: {}
+    labels: {}
+    selector: {}
+  logPersistence:
+    enabled: true
+    storageClass: "standard"
+    accessModes: [ReadWriteOnce]
+    size: 2Gi
+    annotations: {}
+    labels: {}
+    selector: {}
+  extraEnvVars: []
+  # automountServiceAccountToken: true
+  resources: {}
+  ## resources:
+  ##   requests:
+  ##     cpu: 2
+  ##     memory: 512Mi
+  ##   limits:
+  ##     cpu: 3
+  ##     memory: 1024Mi
+  ##
+
+## Kafka provisioning
+provisioning:
+  enabled: true
+  # automountServiceAccountToken: true
+  numPartitions: 24
+  replicationFactor: 3
+  topics:
+    - name: svc_dead_letter
+      # partitions: 30
+      # replicationFactor: 3
+      config:
+        retention.ms: "2592000000"
+    - name: svc_api_license_query
+    - name: svc_email_alerts
+    - name: svc_integration_setup_msg
+    - name: svc_integration_event
+    - name: svc_action_completed
+    - name: svc_workflow_monitor
+    - name: svc_financial_transaction
+
+  # extraProvisioningCommands:
+  #   - echo "Overrides topic config command"
+  #   - >-
+  #     /opt/bitnami/kafka/bin/kafka-configs.sh
+  #     --bootstrap-server $KAFKA_SERVICE
+  #     --entity-type topics
+  #     --entity-name svc_dead_letter
+  #     --alter
+  #     --add-config retention.ms=5184000000
+
+## @section Traffic Exposure parameters
+service:
+  type: ClusterIP
+  ports:
+    client: 9092
+    controller: 9093
+    interbroker: 9094
+    external: 9095
+  sessionAffinity: None
+  clusterIP: ""
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  annotations: {}
+
+## ServiceAccount
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: true
+  annotations: {}
+  rbac:
+    create: false
+
+## Metrics
+metrics:
+  kafka:
+    enabled: false
+    # automountServiceAccountToken: true
+  jmx:
+    enabled: false
+
+## ZooKeeper
+zookeeper:
+  enabled: false
