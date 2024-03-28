@@ -40,14 +40,12 @@ extraConfig: |-
   default.replication.factor=3
   log.retention.hours=336
   log.roll.hours=336
-  log.flush.interval.messages=10000
-  log.flush.interval.ms=1000
   group.initial.rebalance.delay.ms=0
   sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512,OAUTHBEARER
   super.users=User:admin
-  message.max.bytes=1048588
   log.retention.bytes=-1
   min.insync.replicas=2
+  offsets.topic.replication.factor=2
 
 secretConfig: ""
 existingSecretConfig: ""
@@ -155,6 +153,7 @@ provisioning:
       # replicationFactor: 3
       config:
         retention.ms: "2592000000"
+        segment.ms: "2592000000"
     - name: svc_api_license_query
     - name: svc_email_alerts
     - name: svc_integration_setup_msg
@@ -204,6 +203,10 @@ metrics:
     enabled: false
     # automountServiceAccountToken: true
   jmx:
+    enabled: false
+  serviceMonitor:
+    enabled: false
+  prometheusRule:
     enabled: false
 
 ## ZooKeeper
