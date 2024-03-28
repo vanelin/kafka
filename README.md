@@ -43,7 +43,7 @@ helm search repo bitnami/kafka --versions
 
 ## Install Kafka on K8s:
 ```bash
-helm install kafka oci://registry-1.docker.io/bitnamicharts/kafka \
+helm upgrade --install kafka oci://registry-1.docker.io/bitnamicharts/kafka \
     --version 27.1.2 \
     --create-namespace \
     --namespace kafka \
