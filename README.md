@@ -75,7 +75,10 @@ service/kafka-controller-headless   ClusterIP   None           <none>        909
 ### Commands used to check Kafka config after deployment:
 ```bash
 # Launch a temporary Kafka client pod in the 'kafka' namespace.
-$ kubectl run kafka-client --restart='Never' -it --rm --image=docker.io/bitnami/kafka:3.7.0-debian-12-r0 --namespace kafka --command -- bash
+$ kubectl run kafka-client --restart='Never' -it --rm \
+    --image=docker.io/bitnami/kafka:3.7.0-debian-12-r0 \
+    --namespace kafka \
+    --command -- bash
 
 # Inside the Kafka client shell, list all topics in the Kafka cluster.
 $ kafka-topics.sh --list --bootstrap-server kafka.kafka.svc.cluster.local:9092
