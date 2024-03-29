@@ -162,6 +162,7 @@ provisioning:
     - name: svc_workflow_monitor
     - name: svc_financial_transaction
 
+  ## Updeate topic config after provisioning:
   # extraProvisioningCommands:
   #   - echo "Overrides topic config command"
   #   - >-
