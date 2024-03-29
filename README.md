@@ -3,7 +3,7 @@
 ## Mindmap diagram:
 The architecture diagram below represents the resources we will deploy to get a general idea of how our Kafka cluster will look in Kubernetes.
 
-[![](https://mermaid.ink/img/pako:eNqlVVtvmzAU_iuW-woROBcN8rjsaZpUqdNemj649nGDcDCyId3U9r_PgPFCWEii8gDY3-UcX479hpnigFP8omm5Qz832wIhUz93zS3O62cImaxNBXqLG3AIU5FTVNA9mJIy6BkItUBoDuzxe0t5AH3IGDz1eP898ipsImH0z6I3iR67L1NFpZWUoMMI3SvuvaDgl2zjsW08to3HtucMydiQjA3JVYblgR272aYd8_2vr4jTiobjwT8NufEENz7hkgkuOeHOW65UL-ZyDosJ7mkOywkumVpUtx1QGIbdJJ0D5kMg9kB8DlgMAeIBcg5Y_j87u-MbyrsrjcGczUZdO6BcgjEdMrPimau1mVSMyjSJErvT3vsRXh0r_nSs-OpY5NOx3CS7JfdlwiQ1ZgMC5V8MEpmU6d2crBgsA2MD5ZDeCSHcf_ia8WqXLsrf64HUH03OQAjGougGA9MdXF6eJDfJX5XOQTt1FDGWJDeoS8WddLVizNOvktoF63Ne2ecmqVM22V4O6rVHW8XN2voUiwK3u4K-nuwQj1htWQdtqbZv0vSscYD3oPc04_aiemvYW1ztYG_vm9T-chC0llVzhn5YKq0r9fCnYDitdA0Brkt73sEmo_a83eNUUGl87zeeVUr7TmibP7obsb0YP_4CDE1MZg?type=png)](https://mermaid.live/edit#pako:eNqlVVtvmzAU_iuW-woROBcN8rjsaZpUqdNemj649nGDcDCyId3U9r_PgPFCWEii8gDY3-UcX479hpnigFP8omm5Qz832wIhUz93zS3O62cImaxNBXqLG3AIU5FTVNA9mJIy6BkItUBoDuzxe0t5AH3IGDz1eP898ipsImH0z6I3iR67L1NFpZWUoMMI3SvuvaDgl2zjsW08to3HtucMydiQjA3JVYblgR272aYd8_2vr4jTiobjwT8NufEENz7hkgkuOeHOW65UL-ZyDosJ7mkOywkumVpUtx1QGIbdJJ0D5kMg9kB8DlgMAeIBcg5Y_j87u-MbyrsrjcGczUZdO6BcgjEdMrPimau1mVSMyjSJErvT3vsRXh0r_nSs-OpY5NOx3CS7JfdlwiQ1ZgMC5V8MEpmU6d2crBgsA2MD5ZDeCSHcf_ia8WqXLsrf64HUH03OQAjGougGA9MdXF6eJDfJX5XOQTt1FDGWJDeoS8WddLVizNOvktoF63Ne2ecmqVM22V4O6rVHW8XN2voUiwK3u4K-nuwQj1htWQdtqbZv0vSscYD3oPc04_aiemvYW1ztYG_vm9T-chC0llVzhn5YKq0r9fCnYDitdA0Brkt73sEmo_a83eNUUGl87zeeVUr7TmibP7obsb0YP_4CDE1MZg)
+![Kafka on K8s](docs/kraft.png)
 
 
 ## Run kind cluster:
@@ -75,10 +75,11 @@ service/kafka-controller-headless   ClusterIP   None           <none>        909
 ### Commands used to check Kafka config after deployment:
 ```bash
 # Launch a temporary Kafka client pod in the 'kafka' namespace.
-kubectl run kafka-client --restart='Never' -it --rm --image=docker.io/bitnami/kafka:3.7.0-debian-12-r0 --namespace kafka --command -- bash
+$ kubectl run kafka-client --restart='Never' -it --rm --image=docker.io/bitnami/kafka:3.7.0-debian-12-r0 --namespace kafka --command -- bash
 
 # Inside the Kafka client shell, list all topics in the Kafka cluster.
-I have no name!@kafka-client:/$ kafka-topics.sh --list --bootstrap-server kafka.kafka.svc.cluster.local:9092
+$ kafka-topics.sh --list --bootstrap-server kafka.kafka.svc.cluster.local:9092
+
 svc_dead_letter
 svc_api_license_query
 svc_email_alerts
@@ -89,7 +90,8 @@ svc_workflow_monitor
 svc_financial_transaction
 
 # Describe the 'svc_dead_letter' topic, including partition and replication details.
-I have no name!@kafka-client:/$ kafka-topics.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 --topic svc_dead_letter --describe
+$ kafka-topics.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 --topic svc_dead_letter --describe
+
 Topic: svc_dead_letter   TopicId: Lhy9OsQdQvW0jZG1Ue1rJw PartitionCount: 24 ReplicationFactor: 3 Configs: min.insync.replicas=2,flush.ms=1000,retention.ms=2592000000,flush.messages=10000,max.message.bytes=1048588,retention.bytes=-1
         Topic: svc_dead_letter   Partition: 0    Leader: 1       Replicas: 1,2,0 Isr: 1,2,0
         Topic: svc_dead_letter   Partition: 1    Leader: 2       Replicas: 2,0,1 Isr: 2,0,1
@@ -117,7 +119,7 @@ Topic: svc_dead_letter   TopicId: Lhy9OsQdQvW0jZG1Ue1rJw PartitionCount: 24 Repl
         Topic: svc_dead_letter   Partition: 23   Leader: 1       Replicas: 1,2,0 Isr: 1,2,0
 
 # Display the current status of the Kafka metadata quorum.
-I have no name!@kafka-client:/$ kafka-metadata-quorum.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 describe --status
+$ kafka-metadata-quorum.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 describe --status
 ClusterId:              799pePyYP71DLZ9d6FKkpb
 LeaderId:               1
 LeaderEpoch:            1
@@ -127,20 +129,34 @@ MaxFollowerLagTimeMs:   160
 CurrentVoters:          [0,1,2]
 CurrentObservers:       []
 
-# Create/desribe/update/delete a topic named 'test' with 3 partitions.
-I have no name!@kafka-client:/$ kafka-topics.sh --bootstrap-server  kafka.kafka.svc.cluster.local:9092 --topic test --create --partitions 3
-Created topic test.
+# create topic named 'test' with 3 partitions.
+$ kafka-topics.sh --bootstrap-server  kafka.kafka.svc.cluster.local:9092 --topic test --create --partitions 3
 
-I have no name!@kafka-client:/$ kafka-topics.sh --bootstrap-server  kafka.kafka.svc.cluster.local:9092 --topic test --describe
+# we can publish data to Kafka using the bootstrap server list!
+# PRODUCER:
+$ kafka-console-producer.sh \
+  --broker-list kafka-controller-0.kafka-controller-headless.kafka.svc.cluster.local:9092,kafka-controller-1.kafka-controller-headless.kafka.svc.cluster.local:9092,kafka-controller-2.kafka-controller-headless.kafka.svc.cluster.local:9092 \
+  --topic test
+
+# we can read data using any broker
+# CONSUMER:
+$ kafka-console-consumer.sh \
+  --bootstrap-server kafka.kafka.svc.cluster.local:9092 \
+  --topic test \
+  --from-beginning
+
+$ kafka-topics.sh --bootstrap-server  kafka.kafka.svc.cluster.local:9092 --topic test --describe
+
 Topic: test     TopicId: W_CQe07QQN-tN-PDUi1Riw PartitionCount: 3 ReplicationFactor: 3 Configs: min.insync.replicas=2,flush.ms=1000,flush.messages=10000,max.message.bytes=1048588,retention.bytes=-1
         Topic: test     Partition: 0    Leader: 1       Replicas: 1,2,0 Isr: 1,2,0
         Topic: test     Partition: 1    Leader: 2       Replicas: 2,0,1 Isr: 2,0,1
         Topic: test     Partition: 2    Leader: 0       Replicas: 0,1,2 Isr: 0,1,2
 
-I have no name!@kafka-client:/$ kafka-configs.sh --bootstrap-server kafka.kafka.svc.cluster.local:9092 --entity-type topics --entity-name test --alter --add-config retention.ms=5184000000
-Completed updating config for topic test.
+# update the 'test' topic configuration to set a retention period of 60 days.
+$ kafka-configs.sh --bootstrap-server kafka.kafka-v3.svc.cluster.local:9092 --entity-type topics --entity-name test --alter --add-config retention.ms=5184000000
 
-I have no name!@kafka-client:/$ kafka-topics.sh --bootstrap-server  kafka.kafka.svc.cluster.local:9092 --topic test --delete
+# delete the 'test' topic.
+$ kafka-topics.sh --bootstrap-server  kafka.kafka-v3.svc.cluster.local:9092 --topic test --delete
 
 ---
 ##! Connect to the Kafka Pod to access its environment
@@ -150,19 +166,19 @@ $ kubectl exec -it kafka-controller-0 -n kafka -- bash
 $ cat /opt/bitnami/kafka/config/server.properties | grep -v ^# | grep -v ^$
 
 # Retrieve the cluster ID of the Kafka cluster
-I have no name!@kafka-controller-0:/$ kafka-cluster.sh cluster-id --bootstrap-server localhost:9092
-Cluster ID: 799pePyYP71DLZ9d6FKkpb
+# Cluster ID: 799pePyYP71DLZ9d6FKkpb
+$ kafka-cluster.sh cluster-id --bootstrap-server localhost:9092
 
 # Display the version of the Kafka broker API versions script
-I have no name!@kafka-controller-0:/$ kafka-broker-api-versions.sh --bootstrap-server localhost:9092 --version
 # Expected output: 3.7.0
+$ kafka-broker-api-versions.sh --bootstrap-server localhost:9092 --version
 
 # Display the version of the Kafka topics script.
-I have no name!@kafka-controller-0:/$ kafka-topics.sh --version
 # Expected output: 3.7.0
+$ kafka-topics.sh --version
 
 # Describe the configuration for the Kafka broker with ID "0"
-I have no name!@kafka-controller-0:/$ kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --entity-name 0 --describe
+$ kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --entity-name 0 --describe
 ```
 
 ## Delete Kafka on K8s:
