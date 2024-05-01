@@ -1,0 +1,56 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaMirrorMaker2
+metadata:
+  name: kafka-mirror
+spec:
+  version: 3.7.0
+  replicas: 1
+  connectCluster: "destination-cluster"
+  clusters:
+  - alias: "origin-cluster"
+    bootstrapServers: kafka.kafka.svc.cluster.local:9092
+    config:
+      config.storage.replication.factor: -1
+      offset.storage.replication.factor: -1
+      status.storage.replication.factor: -1       
+  - alias: "destination-cluster"
+    bootstrapServers: dev-cluster-kafka-bootstrap.kafka-v3.svc.cluster.local:9092
+    config:
+      config.storage.replication.factor: 1
+      config.storage.topic: mirrormaker2-cluster-configs
+      offset.storage.replication.factor: 1
+      offset.storage.topic: mirrormaker2-cluster-offsets
+      status.storage.replication.factor: 1
+      status.storage.topic: mirrormaker2-cluster-status
+  mirrors:
+  - sourceCluster: "origin-cluster"
+    targetCluster: "destination-cluster"
+    sourceConnector:
+      tasksMax: 3
+      config:
+        replication.factor: 3
+        offset-syncs.topic.replication.factor: 1
+        sync.topic.acls.enabled: "false"
+        replication.policy.separator: "."
+        replication.policy.class: "io.strimzi.kafka.connect.mirror.IdentityReplicationPolicy"
+        refresh.topics.interval.seconds: 60
+    heartbeatConnector:
+      config:
+        heartbeats.topic.replication.factor: 3
+    checkpointConnector:
+      config:
+        checkpoints.topic.replication.factor: 3      
+        sync.group.offsets.enabled: true
+        refresh.groups.interval.seconds: 60
+    topicsPattern: ".*"
+    groupsPattern: ".*"
+  logging:
+    type: inline
+    loggers:
+      connect.root.logger.level: "INFO"
+  readinessProbe:
+    initialDelaySeconds: 45
+    timeoutSeconds: 5
+  livenessProbe:
+    initialDelaySeconds: 45
+    timeoutSeconds: 5

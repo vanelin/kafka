@@ -1,0 +1,54 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaMirrorMaker2
+metadata:
+  name: my-mirror-maker-2
+spec:
+  version: 3.7.0
+  replicas: 1
+  connectCluster: "destination-cluster" # Must be the target custer
+  clusters:
+  - alias: "origin-cluster" # Source cluster
+    bootstrapServers: kafka.kafka.svc.cluster.local:9092
+  - alias: "destination-cluster" # Target cluster
+    bootstrapServers: kafka.kafka-v3.svc.cluster.local:9092
+    config:
+      # -1 means it will use the default replication factor configured in the broker
+      config.storage.replication.factor: -1
+      offset.storage.replication.factor: -1
+      status.storage.replication.factor: -1
+  mirrors:
+  - sourceCluster: "origin-cluster"
+    targetCluster: "destination-cluster"
+    sourceConnector:
+      tasksMax: 3
+      config:
+        # -1 means it will use the default replication factor configured in the broker
+        replication.factor: -1
+        offset-syncs.topic.replication.factor: -1
+        sync.topic.acls.enabled: "false"
+        sync.topic.configs.enabled: "false"
+        replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+        refresh.topics.interval.seconds: 60
+    heartbeatConnector:
+      config:
+        heartbeats.topic.replication.factor: 3
+    checkpointConnector:
+      tasksMax: 3
+      config:
+        # -1 means it will use the default replication factor configured in the broker
+        checkpoints.topic.replication.factor: -1
+        replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+        sync.group.offsets.enabled: "true"
+        refresh.groups.interval.seconds: 60
+    topicsPattern: ".*"
+    groupsPattern: ".*"
+  logging:
+    type: inline
+    loggers:
+      connect.root.logger.level: "INFO"
+  readinessProbe:
+    initialDelaySeconds: 45
+    timeoutSeconds: 5
+  livenessProbe:
+    initialDelaySeconds: 45
+    timeoutSeconds: 5
