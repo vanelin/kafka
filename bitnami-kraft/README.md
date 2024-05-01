@@ -166,5 +166,5 @@ kubectl delete pvc -l app.kubernetes.io/name=kafka -n kafka-v3
 To replicate data between Kafka clusters in different namespaces, we can use KafkaMirrorMaker2.
 
 More information about processing data migration here:
-- [Kafka migration with MirrorMaker 2](kafka-migration/README.md)
-- [Configure and install manifest for MirrorMaker 2](kafka-migration/mirror-maker2.yaml)
+- [Kafka migration with MirrorMaker 2](../kafka-migration/README.md)
+- [Configure and install manifest for MirrorMaker 2](../kafka-migration/mirror-maker2.yaml)
